@@ -1,3 +1,9 @@
+CREATE DATABASE requests;
+GO
+
+USE requests;
+GO
+
 CREATE TABLE Departments (
     department_id INT PRIMARY KEY,
     department_name VARCHAR(255)
@@ -68,7 +74,7 @@ CREATE INDEX idx_rules_request_type_id ON Rules (request_type_id);
 CREATE INDEX idx_rules_request_subtype_id ON Rules (request_subtype_id);
 
 CREATE TABLE Requests (
-    request_id INT PRIMARY KEY,
+    request_id INT PRIMARY KEY IDENTITY(1,1),
     employee_id INT,
     request_subtype_id INT,
     start_date DATE,
@@ -83,7 +89,7 @@ CREATE INDEX idx_requests_employee_id ON Requests (employee_id);
 CREATE INDEX idx_requests_request_subtype_id ON Requests (request_subtype_id);
 
 CREATE TABLE RequestApprovals (
-    request_approval_id INT PRIMARY KEY,
+    request_approval_id INT PRIMARY KEY IDENTITY(1,1),
     request_id INT,
     approval_level INT,
     approver_employee_id INT,
