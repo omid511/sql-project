@@ -2,7 +2,7 @@ USE requests;
 GO
 
 -- Stored procedure to insert a leave or mission request
-CREATE PROCEDURE InsertRequest (
+ALTER PROCEDURE InsertRequest (
     @employee_id INT,
     @request_subtype_id INT,
     @start_date DATE,
@@ -20,66 +20,97 @@ BEGIN
     DECLARE RuleCursor CURSOR FOR
         SELECT rule_name, rule_value, rule_check
         FROM Rules
-        WHERE request_subtype_id = @request_subtype_id;
+        WHERE request_subtype_id = @request_subtype_id OR (request_type_id = (SELECT request_type_id FROM RequestSubtypes WHERE request_subtype_id = @request_subtype_id) AND request_subtype_id IS NULL);
 
     OPEN RuleCursor;
     FETCH NEXT FROM RuleCursor INTO @RuleName, @RuleValue, @RuleCheck;
 
     WHILE @@FETCH_STATUS = 0
     BEGIN
-        IF @RuleName = 'Min Vacation Days' AND DATEDIFF(day, @start_date, @end_date) < CAST(@RuleValue AS INT) -1
+        IF @RuleCheck = 'BOOLEAN'
         BEGIN
-            SET @ErrorMessage = 'Rule Violated: Minimum vacation days not met.';
-            RAISERROR(@ErrorMessage, 16, 1);
-            CLOSE RuleCursor;
-            DEALLOCATE RuleCursor;
-            RETURN;
-        END
+            IF @RuleName = 'Sick Leave Requires Note' AND @request_subtype_id = 11 AND (@reason IS NULL OR DATALENGTH(@reason) = 0) AND @RuleValue = 'true'
+            BEGIN
+                SET @ErrorMessage = 'Rule Violated: Sick leave requires a reason.';
+                RAISERROR(@ErrorMessage, 16, 1);
+                CLOSE RuleCursor;
+                DEALLOCATE RuleCursor;
+                RETURN;
+            END
 
-        IF @RuleName = 'Max Vacation Days' AND DATEDIFF(day, @start_date, @end_date) > CAST(@RuleValue AS INT)
-        BEGIN
-            SET @ErrorMessage = 'Rule Violated: Maximum vacation days exceeded.';
-            RAISERROR(@ErrorMessage, 16, 1);
-            CLOSE RuleCursor;
-            DEALLOCATE RuleCursor;
-            RETURN;
-        END
+            IF @RuleName = 'Project Assignment Justification Required' AND @request_subtype_id = 20 AND (@reason IS NULL OR DATALENGTH(@reason) = 0) AND @RuleValue = 'true'
+            BEGIN
+                SET @ErrorMessage = 'Rule Violated: Project assignment requires a justification.';
+                RAISERROR(@ErrorMessage, 16, 1);
+                CLOSE RuleCursor;
+                DEALLOCATE RuleCursor;
+                RETURN;
+            END
 
-        IF @RuleName = 'Sick Leave Requires Note' AND @request_subtype_id = 11 AND (@reason IS NULL OR DATALENGTH(@reason) = 0)
-        BEGIN
-            SET @ErrorMessage = 'Rule Violated: Sick leave requires a reason.';
-            RAISERROR(@ErrorMessage, 16, 1);
-            CLOSE RuleCursor;
-            DEALLOCATE RuleCursor;
-            RETURN;
-        END
+            IF @RuleName = 'Task Assignment Deadline Required' AND @request_subtype_id = 21 AND @end_date IS NULL AND @RuleValue = 'true'
+            BEGIN
+                SET @ErrorMessage = 'Rule Violated: Task assignment requires a deadline.';
+                RAISERROR(@ErrorMessage, 16, 1);
+                CLOSE RuleCursor;
+                DEALLOCATE RuleCursor;
+                RETURN;
+            END
 
-        IF @RuleName = 'Project Assignment Justification Required' AND @request_subtype_id = 20 AND (@reason IS NULL OR DATALENGTH(@reason) = 0)
-        BEGIN
-            SET @ErrorMessage = 'Rule Violated: Project assignment requires a justification.';
-            RAISERROR(@ErrorMessage, 16, 1);
-            CLOSE RuleCursor;
-            DEALLOCATE RuleCursor;
-            RETURN;
+            IF (@RuleName = 'Project Assignment Cannot Start In The Past' OR @RuleName = 'Task Assignment Cannot Start In The Past') AND @start_date < GETDATE() AND @RuleValue = 'false'
+            BEGIN
+                SET @ErrorMessage = 'Rule Violated: ' + @RuleName + '.';
+                RAISERROR(@ErrorMessage, 16, 1);
+                CLOSE RuleCursor;
+                DEALLOCATE RuleCursor;
+                RETURN;
+            END
         END
-
-        -- Add more rule checks as needed
-        IF @RuleName = 'Project Assignment Max Duration' AND @request_subtype_id = 20 AND DATEDIFF(day, @start_date, @end_date) > CAST(@RuleValue AS INT)
+        ELSE IF @RuleCheck IN ('>=', '<=', '>', '<')
         BEGIN
-            SET @ErrorMessage = 'Rule Violated: Project assignment duration exceeds the maximum allowed.';
-            RAISERROR(@ErrorMessage, 16, 1);
-            CLOSE RuleCursor;
-            DEALLOCATE RuleCursor;
-            RETURN;
-        END
+            IF @RuleName = 'Min Vacation Days' AND @request_subtype_id = 10 AND DATEDIFF(day, @start_date, @end_date) < CAST(@RuleValue AS INT) AND @RuleCheck = '>='
+            BEGIN
+                SET @ErrorMessage = 'Rule Violated: Minimum vacation duration is ' + @RuleValue + ' days.';
+                RAISERROR(@ErrorMessage, 16, 1);
+                CLOSE RuleCursor;
+                DEALLOCATE RuleCursor;
+                RETURN;
+            END
 
-        IF @RuleName = 'Task Assignment Deadline Required' AND @request_subtype_id = 21 AND @end_date IS NULL
-        BEGIN
-            SET @ErrorMessage = 'Rule Violated: Task assignment requires a deadline.';
-            RAISERROR(@ErrorMessage, 16, 1);
-            CLOSE RuleCursor;
-            DEALLOCATE RuleCursor;
-            RETURN;
+            IF @RuleName = 'Max Vacation Days' AND @request_subtype_id = 10 AND DATEDIFF(day, @start_date, @end_date) > CAST(@RuleValue AS INT) AND @RuleCheck = '<='
+            BEGIN
+                SET @ErrorMessage = 'Rule Violated: Maximum vacation duration is ' + @RuleValue + ' days.';
+                RAISERROR(@ErrorMessage, 16, 1);
+                CLOSE RuleCursor;
+                DEALLOCATE RuleCursor;
+                RETURN;
+            END
+
+            IF @RuleName = 'Vacation Request Advance Notice' AND @request_subtype_id = 10 AND DATEDIFF(day, GETDATE(), @start_date) < CAST(@RuleValue AS INT) AND @RuleCheck = '>='
+            BEGIN
+                SET @ErrorMessage = 'Rule Violated: Vacation requests must be made at least ' + @RuleValue + ' days in advance.';
+                RAISERROR(@ErrorMessage, 16, 1);
+                CLOSE RuleCursor;
+                DEALLOCATE RuleCursor;
+                RETURN;
+            END
+
+            IF @RuleName = 'Max Sick Leave Duration' AND @request_subtype_id = 11 AND DATEDIFF(day, @start_date, @end_date) > CAST(@RuleValue AS INT) AND @RuleCheck = '<='
+            BEGIN
+                SET @ErrorMessage = 'Rule Violated: Maximum sick leave duration is ' + @RuleValue + ' days.';
+                RAISERROR(@ErrorMessage, 16, 1);
+                CLOSE RuleCursor;
+                DEALLOCATE RuleCursor;
+                RETURN;
+            END
+
+             IF @RuleName = 'Project Assignment Max Duration' AND @request_subtype_id = 20 AND DATEDIFF(day, @start_date, @end_date) > CAST(@RuleValue AS INT) AND @RuleCheck = '<='
+            BEGIN
+                SET @ErrorMessage = 'Rule Violated: Project assignment duration cannot exceed ' + @RuleValue + ' days.';
+                RAISERROR(@ErrorMessage, 16, 1);
+                CLOSE RuleCursor;
+                DEALLOCATE RuleCursor;
+                RETURN;
+            END
         END
 
         FETCH NEXT FROM RuleCursor INTO @RuleName, @RuleValue, @RuleCheck;
@@ -87,6 +118,14 @@ BEGIN
 
     CLOSE RuleCursor;
     DEALLOCATE RuleCursor;
+
+    -- Check for valid date range
+    IF @start_date > @end_date
+    BEGIN
+        SET @ErrorMessage = 'Rule Violated: Start date cannot be after end date.';
+        RAISERROR(@ErrorMessage, 16, 1);
+        RETURN;
+    END
 
     -- Overlapping Request Check
     IF EXISTS (

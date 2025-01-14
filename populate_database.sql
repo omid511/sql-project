@@ -1,4 +1,4 @@
-use requests;
+USE requests;
 GO
 
 -- Insert data into Departments table
@@ -63,20 +63,15 @@ INSERT INTO Rules (rule_id, request_type_id, request_subtype_id, rule_name, rule
 (102, 1, 11, 'Sick Leave Requires Note', 'true', 'BOOLEAN'),
 (103, 2, 20, 'Project Assignment Justification Required', 'true', 'BOOLEAN'),
 (104, 2, 20, 'Project Assignment Max Duration', '365', '<='),
-(105, 2, 21, 'Task Assignment Deadline Required', 'true', 'BOOLEAN');
+(105, 2, 21, 'Task Assignment Deadline Required', 'true', 'BOOLEAN'),
+(106, 1, 10, 'Vacation Request Advance Notice', '14', '>='),
+(107, 1, 11, 'Max Sick Leave Duration', '10', '<='),
+(108, 2, 20, 'Project Assignment Cannot Start In The Past', 'false', 'BOOLEAN'),
+(109, 2, 21, 'Task Assignment Cannot Start In The Past', 'false', 'BOOLEAN');
 
 -- Insert data into Requests table
 INSERT INTO Requests (employee_id, request_subtype_id, start_date, end_date, reason, request_status, request_date) VALUES
 (1, 10, '2025-02-10', '2025-02-15', 'Planning a vacation', 'Pending', '2025-01-14 10:00:00'),
-(6, 20, '2025-03-01', '2025-03-15', 'Assignment to project Alpha', 'Pending', '2025-01-14 11:00:00'),
 (3, 11, '2025-01-15', '2025-01-16', 'Feeling unwell', 'Pending', '2025-01-14 12:00:00'),
 (2, 10, '2025-03-01', '2025-03-05', 'Spring break', 'Pending', '2025-01-14 13:00:00'),
 (9, 21, '2025-01-20', '2025-01-22', 'Complete marketing report', 'Pending', '2025-01-14 14:00:00');
-
--- Insert data into RequestApprovals table
-INSERT INTO RequestApprovals (request_id, approval_level, approver_employee_id, approval_status, response_date) VALUES
-(1, 1, 4, 'Pending', NULL),
-(2, 1, 4, 'Pending', NULL),
-(3, 1, 5, 'Pending', NULL),
-(4, 1, 11, 'Pending', NULL),
-(5, 1, 12, 'Pending', NULL);
