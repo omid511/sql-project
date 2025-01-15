@@ -73,5 +73,5 @@ INSERT INTO Rules (rule_id, request_type_id, request_subtype_id, rule_name, rule
 INSERT INTO Requests (employee_id, request_subtype_id, start_date, end_date, reason, request_status, request_date) VALUES
 (1, 10, '2025-02-10', '2025-02-15', 'Planning a vacation', 'Pending', '2025-01-14 10:00:00'),
 (3, 11, '2025-01-15', '2025-01-16', 'Feeling unwell', 'Pending', '2025-01-14 12:00:00'),
-(2, 10, '2025-03-01', '2025-03-05', 'Spring break', 'Pending', '2025-01-14 13:00:00'),
+(2, 10, '2023-03-01', '2024-03-05', 'Spring break', 'Approved', '2023-01-14 13:00:00'),
 (9, 21, '2025-01-20', '2025-01-22', 'Complete marketing report', 'Pending', '2025-01-14 14:00:00');

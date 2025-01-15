@@ -15,5 +15,6 @@ GO
 
 -- Drop the requests database
 use master;
+ALTER DATABASE requests SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
 DROP DATABASE requests;
 Go
