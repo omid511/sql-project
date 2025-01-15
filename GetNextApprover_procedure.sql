@@ -1,3 +1,6 @@
+USE requests;
+GO
+
 CREATE PROCEDURE GetNextApprover (
     @request_id INT
 )
