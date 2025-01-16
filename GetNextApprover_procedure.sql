@@ -14,15 +14,11 @@ BEGIN
       AND approval_status <> 'Pending';
 
     -- Find Next Approval Level
-    DECLARE @request_subtype_id INT, @request_type_id INT, @employee_id INT, @employee_role_id INT;
+    DECLARE @request_subtype_id INT, @employee_id INT, @employee_role_id INT;
 
     SELECT @request_subtype_id = request_subtype_id, @employee_id = employee_id
     FROM Requests
     WHERE request_id = @request_id;
-
-    SELECT @request_type_id = request_type_id
-    FROM RequestSubtypes
-    WHERE request_subtype_id = @request_subtype_id;
 
     SELECT @employee_role_id = role_id
     FROM Employees
@@ -31,7 +27,7 @@ BEGIN
     DECLARE @NextApprovalLevel INT;
     SELECT @NextApprovalLevel = MIN(approval_level)
     FROM ApprovalChains
-    WHERE request_type_id = @request_type_id
+    WHERE request_subtype_id = @request_subtype_id
       AND employee_role_id = @employee_role_id
       AND approval_level > @CurrentApprovalLevel;
 
@@ -40,7 +36,7 @@ BEGIN
     BEGIN
         SELECT approver_role_id AS ApproverRoleId, approver_department_id AS ApproverDepartmentId
         FROM ApprovalChains
-        WHERE request_type_id = @request_type_id
+        WHERE request_subtype_id = @request_subtype_id
           AND employee_role_id = @employee_role_id
           AND approval_level = @NextApprovalLevel;
     END

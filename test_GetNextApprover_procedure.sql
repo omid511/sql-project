@@ -1,8 +1,6 @@
 USE requests;
 GO
 
--- Test script for GetNextApprover procedure
-
 -- Test case 1: Fully approved request
 DECLARE @RequestID INT = 74;
 PRINT 'Test Case 1 Output:';
@@ -21,4 +19,13 @@ VALUES (@NewRequestID, 1, 4, 'Approved', GETDATE());
 -- Execute the GetNextApprover procedure for the new request
 PRINT 'Test Case 2 Output:';
 EXEC GetNextApprover @NewRequestID;
-GO
+
+-- Test case 3: Request with no approvals yet
+-- Insert a new request
+INSERT INTO Requests (employee_id, request_subtype_id, start_date, end_date, reason, request_status, request_date)
+VALUES (1, 10, '2025-02-21', '2025-02-25', 'Another vacation for testing', 'Pending', GETDATE());
+DECLARE @AnotherRequestID INT = SCOPE_IDENTITY();
+
+-- Execute the GetNextApprover procedure for the new request
+PRINT 'Test Case 3 Output:';
+EXEC GetNextApprover @AnotherRequestID;

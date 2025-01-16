@@ -45,15 +45,17 @@ CREATE INDEX idx_request_subtypes_request_type_id ON RequestSubtypes (request_ty
 CREATE TABLE ApprovalChains (
     approval_chain_id INT PRIMARY KEY,
     request_type_id INT,
+    request_subtype_id INT,
     employee_role_id INT,
     approval_level INT,
     approver_role_id INT,
     approver_department_id INT,
     FOREIGN KEY (request_type_id) REFERENCES RequestTypes(request_type_id),
+    FOREIGN KEY (request_subtype_id) REFERENCES RequestSubtypes(request_subtype_id),
     FOREIGN KEY (employee_role_id) REFERENCES Roles(role_id),
     FOREIGN KEY (approver_role_id) REFERENCES Roles(role_id),
     FOREIGN KEY (approver_department_id) REFERENCES Departments(department_id),
-    CONSTRAINT UC_RequestTypeRoleLevel UNIQUE (request_type_id, employee_role_id, approval_level)
+    CONSTRAINT UC_RequestTypeRoleLevel UNIQUE (request_type_id, request_subtype_id, employee_role_id, approval_level)
 );
 CREATE INDEX idx_approval_chains_request_type_id ON ApprovalChains (request_type_id);
 CREATE INDEX idx_approval_chains_employee_role_id ON ApprovalChains (employee_role_id);
