@@ -33,6 +33,7 @@ BEGIN
             BEGIN
                 SET @ErrorMessage = 'Rule Violated: Sick leave requires a reason.';
                 RAISERROR(@ErrorMessage, 16, 1);
+                THROW 51000, @ErrorMessage, 1;
                 CLOSE RuleCursor;
                 DEALLOCATE RuleCursor;
                 RETURN;
@@ -42,6 +43,7 @@ BEGIN
             BEGIN
                 SET @ErrorMessage = 'Rule Violated: Project assignment requires a justification.';
                 RAISERROR(@ErrorMessage, 16, 1);
+                THROW 51000, @ErrorMessage, 1;
                 CLOSE RuleCursor;
                 DEALLOCATE RuleCursor;
                 RETURN;
@@ -51,6 +53,7 @@ BEGIN
             BEGIN
                 SET @ErrorMessage = 'Rule Violated: Task assignment requires a deadline.';
                 RAISERROR(@ErrorMessage, 16, 1);
+                THROW 51000, @ErrorMessage, 1;
                 CLOSE RuleCursor;
                 DEALLOCATE RuleCursor;
                 RETURN;
@@ -60,6 +63,7 @@ BEGIN
             BEGIN
                 SET @ErrorMessage = 'Rule Violated: ' + @RuleName + '.';
                 RAISERROR(@ErrorMessage, 16, 1);
+                THROW 51000, @ErrorMessage, 1;
                 CLOSE RuleCursor;
                 DEALLOCATE RuleCursor;
                 RETURN;
@@ -71,6 +75,7 @@ BEGIN
             BEGIN
                 SET @ErrorMessage = 'Rule Violated: Minimum vacation duration is ' + @RuleValue + ' days.';
                 RAISERROR(@ErrorMessage, 16, 1);
+                THROW 51000, @ErrorMessage, 1;
                 CLOSE RuleCursor;
                 DEALLOCATE RuleCursor;
                 RETURN;
@@ -80,6 +85,7 @@ BEGIN
             BEGIN
                 SET @ErrorMessage = 'Rule Violated: Maximum vacation duration is ' + @RuleValue + ' days.';
                 RAISERROR(@ErrorMessage, 16, 1);
+                THROW 51000, @ErrorMessage, 1;
                 CLOSE RuleCursor;
                 DEALLOCATE RuleCursor;
                 RETURN;
@@ -89,6 +95,7 @@ BEGIN
             BEGIN
                 SET @ErrorMessage = 'Rule Violated: Vacation requests must be made at least ' + @RuleValue + ' days in advance.';
                 RAISERROR(@ErrorMessage, 16, 1);
+                THROW 51000, @ErrorMessage, 1;
                 CLOSE RuleCursor;
                 DEALLOCATE RuleCursor;
                 RETURN;
@@ -98,6 +105,7 @@ BEGIN
             BEGIN
                 SET @ErrorMessage = 'Rule Violated: Maximum sick leave duration is ' + @RuleValue + ' days.';
                 RAISERROR(@ErrorMessage, 16, 1);
+                THROW 51000, @ErrorMessage, 1;
                 CLOSE RuleCursor;
                 DEALLOCATE RuleCursor;
                 RETURN;
@@ -105,12 +113,13 @@ BEGIN
 
              IF @RuleName = 'Project Assignment Max Duration' AND @request_subtype_id = 20 AND DATEDIFF(day, @start_date, @end_date) > CAST(@RuleValue AS INT) AND @RuleCheck = '<='
             BEGIN
-                SET @ErrorMessage = 'Rule Violated: Project assignment duration cannot exceed ' + @RuleValue + ' days.';
-                RAISERROR(@ErrorMessage, 16, 1);
-                CLOSE RuleCursor;
-                DEALLOCATE RuleCursor;
-                RETURN;
-            END
+               SET @ErrorMessage = 'Rule Violated: Project assignment duration cannot exceed ' + @RuleValue + ' days.';
+               RAISERROR(@ErrorMessage, 16, 1);
+               THROW 51000, @ErrorMessage, 1;
+               CLOSE RuleCursor;
+               DEALLOCATE RuleCursor;
+               RETURN;
+           END
         END
 
         FETCH NEXT FROM RuleCursor INTO @RuleName, @RuleValue, @RuleCheck;
@@ -124,6 +133,7 @@ BEGIN
     BEGIN
         SET @ErrorMessage = 'Rule Violated: Start date cannot be after end date.';
         RAISERROR(@ErrorMessage, 16, 1);
+        THROW 51000, @ErrorMessage, 1;
         RETURN;
     END
 
@@ -142,6 +152,7 @@ BEGIN
     BEGIN
         SET @ErrorMessage = 'Error: Overlapping request found.';
         RAISERROR(@ErrorMessage, 16, 1);
+        THROW 51000, @ErrorMessage, 1;
         RETURN;
     END
 

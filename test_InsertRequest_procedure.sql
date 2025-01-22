@@ -27,7 +27,7 @@ BEGIN TRY
     SELECT 'Test Failed: Minimum vacation days not enforced' AS ResultX;
 END TRY
 BEGIN CATCH
-    SELECT 'Test Passed: Minimum vacation days enforced' AS ResultX;
+    SELECT ERROR_MESSAGE() AS ErrorMessage;
 END CATCH
 GO
 
@@ -44,7 +44,7 @@ BEGIN TRY
     SELECT 'Test Failed: Maximum vacation days not enforced' AS Result;
 END TRY
 BEGIN CATCH
-    SELECT 'Test Passed: Maximum vacation days enforced' AS Result;
+    SELECT ERROR_MESSAGE() AS ErrorMessage;
 END CATCH
 GO
 
@@ -74,7 +74,7 @@ BEGIN TRY
     SELECT 'Test Failed: Sick leave reason not enforced' AS Result;
 END TRY
 BEGIN CATCH
-    SELECT 'Test Passed: Sick leave reason enforced' AS Result;
+    SELECT ERROR_MESSAGE() AS ErrorMessage;
 END CATCH
 GO
 
@@ -104,7 +104,7 @@ BEGIN TRY
     SELECT 'Test Failed: Project assignment justification not enforced' AS Result;
 END TRY
 BEGIN CATCH
-    SELECT 'Test Passed: Project assignment justification enforced' AS Result;
+    SELECT ERROR_MESSAGE() AS ErrorMessage;
 END CATCH
 GO
 
@@ -121,7 +121,7 @@ BEGIN TRY
     SELECT 'Test Failed: Project assignment max duration not enforced' AS Result;
 END TRY
 BEGIN CATCH
-    SELECT 'Test Passed: Project assignment max duration enforced' AS Result;
+    SELECT ERROR_MESSAGE() AS ErrorMessage;
 END CATCH
 GO
 
@@ -151,7 +151,7 @@ BEGIN TRY
     SELECT 'Test Failed: Task assignment deadline not enforced' AS Result;
 END TRY
 BEGIN CATCH
-    SELECT 'Test Passed: Task assignment deadline enforced' AS Result;
+    SELECT ERROR_MESSAGE() AS ErrorMessage;
 END CATCH
 GO
 
@@ -168,7 +168,7 @@ BEGIN TRY
     SELECT 'Test Failed: Past start date for leave not enforced' AS Result;
 END TRY
 BEGIN CATCH
-    SELECT 'Test Passed: Past start date for leave enforced' AS Result;
+    SELECT ERROR_MESSAGE() AS ErrorMessage;
 END CATCH
 GO
 
@@ -185,7 +185,7 @@ BEGIN TRY
     SELECT 'Test Failed: Past start date for assignment not enforced' AS Result;
 END TRY
 BEGIN CATCH
-    SELECT 'Test Passed: Past start date for assignment enforced' AS Result;
+    SELECT ERROR_MESSAGE() AS ErrorMessage;
 END CATCH
 GO
 
@@ -204,7 +204,7 @@ BEGIN TRY
     SELECT 'Test Failed: Vacation advance notice not enforced' AS Result;
 END TRY
 BEGIN CATCH
-    SELECT 'Test Passed: Vacation advance notice enforced' AS Result;
+    SELECT ERROR_MESSAGE() AS ErrorMessage;
 END CATCH
 GO
 
@@ -223,7 +223,7 @@ BEGIN TRY
     SELECT 'Test Failed: Max sick leave duration not enforced' AS Result;
 END TRY
 BEGIN CATCH
-    SELECT 'Test Passed: Max sick leave duration enforced' AS Result;
+    SELECT ERROR_MESSAGE() AS ErrorMessage;
 END CATCH
 GO
 
@@ -240,6 +240,6 @@ BEGIN TRY
     SELECT 'Test Failed: Start date after end date not enforced' AS Result;
 END TRY
 BEGIN CATCH
-    SELECT 'Test Passed: Start date after end date enforced' AS Result;
+    SELECT ERROR_MESSAGE() AS ErrorMessage;
 END CATCH
 GO
